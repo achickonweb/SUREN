@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suren | Dijital Sözlük</title>
+    <title>Suren | Dijital Sözlük & TTS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
         :root {
-            /* Solar Amber Edition */
             --bg: #050505;
             --surface: #111111;
             --accent: #ff8c00;
@@ -16,12 +15,10 @@
             --text-primary: #fcfcfc;
             --text-secondary: #94a3b8;
             --border: #222222;
-            --card-blur: 0px;
             --impact-intensity: 6px;
         }
 
         body.liquid-theme {
-            /* Liquid Glass Blue Edition */
             --bg: #030712;
             --surface: rgba(255, 255, 255, 0.03);
             --accent: #38bdf8;
@@ -29,7 +26,6 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
-            --card-blur: 25px;
             --impact-intensity: 8px;
         }
 
@@ -37,7 +33,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1), border 0.6s ease, color 0.6s ease;
+            transition: background-color 0.6s ease, border 0.6s ease, color 0.6s ease;
         }
 
         body {
@@ -46,10 +42,10 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            perspective: 1000px; /* Derinlik efekti için gerekli */
+            perspective: 1200px;
         }
 
-        /* Arkaplan Izgarası */
+        /* Background Grid */
         body::before {
             content: "";
             position: fixed;
@@ -69,355 +65,268 @@
             right: -200px;
             z-index: -1;
             pointer-events: none;
-            transition: all 1s ease;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 5rem 2rem;
+            padding: 2rem;
             position: relative;
         }
 
-        /* Tema Seçici */
-        .theme-switcher {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
+        /* --- NAVIGATION & SEARCH --- */
+        .nav-bar {
             display: flex;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.4rem;
-            border-radius: 100px;
-            backdrop-filter: blur(20px);
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            position: sticky;
+            top: 1.5rem;
             z-index: 1000;
         }
 
+        .search-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            width: 400px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInUI 0.8s ease-out forwards 3.8s;
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            padding: 0.5rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .theme-switcher {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 0.3rem;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInUI 0.8s ease-out forwards 4s;
+        }
+
+        @keyframes fadeInUI { to { opacity: 1; transform: translateY(0); } }
+
         .theme-btn {
-            padding: 0.7rem 1.4rem;
+            padding: 0.5rem 1rem;
             border-radius: 100px;
             border: none;
             cursor: pointer;
-            font-family: inherit;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             background: transparent;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .theme-btn.active {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
+        .theme-btn.active { background: var(--accent); color: #000; }
 
-        /* --- INTRO ANIMASYONLARI --- */
+        /* --- LOGO SECT --- */
+        header { text-align: center; margin: 6rem 0; }
+        .logo-container { position: relative; display: inline-block; transform-style: preserve-3d; }
+        .logo { font-size: 7rem; font-weight: 800; letter-spacing: -6px; display: flex; align-items: baseline; transform-style: preserve-3d; }
         
-        @keyframes textSlideIn {
-            0% { 
-                transform: translateX(-50vw) skewX(-20deg) scaleX(1.5); 
-                opacity: 0; 
-                filter: blur(20px);
-            }
-            100% { 
-                transform: translateX(0) skewX(-20deg) scaleX(1); 
-                opacity: 1; 
-                filter: blur(0px);
-            }
-        }
+        @keyframes textIn { 0% { transform: translateX(-40vw) skewX(-20deg); opacity: 0; filter: blur(20px); } 100% { transform: translateX(0) skewX(-20deg); opacity: 1; filter: blur(0px); } }
+        @keyframes dotZ { 0% { transform: translateZ(1000px) scale(20); opacity: 0; filter: blur(50px); } 100% { transform: translateZ(0) scale(1); opacity: 1; filter: blur(0px); } }
+        
+        .logo-text { display: inline-block; transform: skewX(-20deg); opacity: 0; animation: textIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .logo-dot { display: inline-block; color: var(--accent); opacity: 0; animation: dotZ 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards 2.4s; }
+        
+        .shockwave { position: absolute; top: 80%; left: 90%; width: 80px; height: 80px; border: 3px solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
+        .impact-active .shockwave { animation: swave 0.8s ease-out forwards; }
+        @keyframes swave { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(6); opacity: 0; } }
 
-        /* Bakış açısından gelme (Z-axis) animasyonu */
-        @keyframes dotZoomIn {
-            0% { 
-                transform: translateZ(1000px) scale(15); 
-                opacity: 0; 
-                filter: blur(40px);
-            }
-            20% {
-                opacity: 1;
-            }
-            100% { 
-                transform: translateZ(0) scale(1); 
-                opacity: 1; 
-                filter: blur(0px);
-            }
-        }
+        @keyframes jump { 0%, 100% { transform: translateY(0) skewX(-20deg); } 50% { transform: translateY(-30px) skewX(-20deg); } }
+        .impact-active .logo-text { animation: textIn 1.2s forwards, jump 0.4s 2.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        body.shake .container { animation: ishake 0.4s both; }
+        @keyframes ishake { 0%, 100% { transform: translate(0,0); } 20%, 60% { transform: translate(-5px, 5px); } 40%, 80% { transform: translate(5px, -5px); } }
 
-        @keyframes impactShake {
-            0%, 100% { transform: translate(0, 0); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(calc(var(--impact-intensity) * -1), var(--impact-intensity)); }
-            20%, 40%, 60%, 80% { transform: translate(var(--impact-intensity), calc(var(--impact-intensity) * -1)); }
-        }
-
-        @keyframes shockwave {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 15px; }
-            100% { transform: translate(-50%, -50%) scale(5); opacity: 0; border-width: 1px; }
-        }
-
-        @keyframes letterJump {
-            0% { transform: translateY(0) skewX(-20deg); }
-            50% { transform: translateY(-30px) skewX(-20deg); }
-            100% { transform: translateY(0) skewX(-20deg); }
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 6rem;
-            position: relative;
-        }
-
-        .logo-container {
-            position: relative;
-            display: inline-block;
-            transform-style: preserve-3d;
-        }
-
-        .logo {
-            font-size: 7rem;
-            font-weight: 800;
-            letter-spacing: -6px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: baseline;
-            position: relative;
-            z-index: 5;
-            transform-style: preserve-3d;
-        }
-
-        .logo-text {
-            display: inline-block;
-            transform: skewX(-20deg);
-            opacity: 0;
-            animation: textSlideIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            will-change: transform, opacity;
-        }
-
-        .logo-dot {
-            display: inline-block;
-            color: var(--accent);
-            text-shadow: 0 0 30px var(--accent-glow);
-            opacity: 0;
-            /* Nokta animasyonu: 2.4s bekleme ile arkadan öne fırlıyor */
-            animation: dotZoomIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards 2.4s;
-            will-change: transform, opacity, filter;
-        }
-
-        /* Şok Dalgası Elementi */
-        .shockwave {
-            position: absolute;
-            top: 85%;
-            left: 95%;
-            width: 100px;
-            height: 100px;
-            border: 3px solid var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-            z-index: 1;
-        }
-
-        /* Darbe anı sınıfları */
-        .impact-active .shockwave {
-            animation: shockwave 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
-        }
-
-        .impact-active .logo-text {
-            /* Hem yerini koru hem zıpla */
-            animation: textSlideIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards, 
-                       letterJump 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        body.impact-shake .container {
-            animation: impactShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        header p {
-            margin-top: 1rem;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            font-weight: 300;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.8s ease-out forwards 3.2s;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Grid Tasarımı */
-        #dictionary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2.5rem;
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards 3.6s;
-        }
-
+        /* --- CARDS --- */
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; opacity: 0; animation: fadeInUI 1s forwards 3.6s; }
+        
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 2.5rem;
+            border-radius: 24px;
+            padding: 2rem;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        .card:hover {
-            border-color: var(--accent);
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5);
-        }
+        .card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 
-        .word-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .word-title { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        
+        .tts-btn {
+            background: var(--border);
+            border: none;
+            color: var(--text-primary);
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
         }
+        .tts-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
 
-        .word-meaning {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
+        .meaning { font-size: 1rem; line-height: 1.6; color: var(--text-primary); opacity: 0.85; margin-bottom: 1.5rem; }
+        
+        .example-box { border-top: 1px solid var(--border); padding-top: 1rem; }
+        .example-label { font-size: 0.65rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; display: block; }
+        .example-text { font-style: italic; color: var(--text-secondary); font-size: 0.95rem; }
 
-        .example-section {
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
-
-        .example-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent);
-            font-weight: 800;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .word-example {
-            font-style: italic;
-            color: var(--text-secondary);
-        }
-
-        .status-msg {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 5rem;
-            border: 1px dashed var(--border);
-            border-radius: 28px;
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 768px) {
-            .logo { font-size: 4.5rem; letter-spacing: -3px; }
-            .container { padding: 3rem 1.5rem; }
-        }
+        @media (max-width: 600px) { .search-container { width: 200px; } .logo { font-size: 4rem; } }
     </style>
 </head>
-<body id="main-body">
+<body id="body">
 
     <div class="glow-sphere"></div>
 
-    <div class="theme-switcher">
-        <button id="amber-btn" class="theme-btn active" onclick="setTheme('amber')">Amber</button>
-        <button id="blue-btn" class="theme-btn" onclick="setTheme('blue')">Liquid</button>
+    <div class="nav-bar">
+        <div class="search-container">
+            <input type="text" id="search" class="search-input" placeholder="Kelime veya anlam ara...">
+        </div>
+        <div class="theme-switcher">
+            <button id="abtn" class="theme-btn active" onclick="setTheme('amber')">Amber</button>
+            <button id="bbtn" class="theme-btn" onclick="setTheme('blue')">Liquid</button>
+        </div>
     </div>
 
     <div class="container">
-        <header id="header-section">
+        <header id="h">
             <div class="logo-container">
-                <div class="logo" id="main-logo">
+                <div class="logo">
                     <span class="logo-text">SUREN</span><span class="logo-dot">.</span>
                 </div>
                 <div class="shockwave"></div>
             </div>
-            <p>Akışkan bilgi, keskin keşif.</p>
         </header>
 
-        <main id="dictionary-grid">
-            <div class="status-msg">Protokoller yükleniyor...</div>
+        <main id="grid">
+            <div style="text-align:center; grid-column: 1/-1; opacity:0.5;">Veriler hazırlanıyor...</div>
         </main>
     </div>
 
     <script>
-        const grid = document.getElementById('dictionary-grid');
-        const body = document.getElementById('main-body');
-        const header = document.getElementById('header-section');
-        const amberBtn = document.getElementById('amber-btn');
-        const blueBtn = document.getElementById('blue-btn');
+        const grid = document.getElementById('grid');
+        const body = document.getElementById('body');
+        const h = document.getElementById('h');
+        const search = document.getElementById('search');
+        
+        let allWords = [];
 
-        const DATA_SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
+        // Intro Logic
+        setTimeout(() => {
+            body.classList.add('shake');
+            h.classList.add('impact-active');
+            setTimeout(() => body.classList.remove('shake'), 450);
+        }, 2900);
 
-        function setTheme(theme) {
-            if (theme === 'blue') {
+        function setTheme(t) {
+            if (t === 'blue') {
                 body.classList.add('liquid-theme');
-                blueBtn.classList.add('active');
-                amberBtn.classList.remove('active');
+                document.getElementById('bbtn').classList.add('active');
+                document.getElementById('abtn').classList.remove('active');
             } else {
                 body.classList.remove('liquid-theme');
-                amberBtn.classList.add('active');
-                blueBtn.classList.remove('active');
+                document.getElementById('abtn').classList.add('active');
+                document.getElementById('bbtn').classList.remove('active');
             }
         }
 
-        // IMPACT MOMENT: Nokta ekrana çarpıp yerine oturduğu an
-        setTimeout(() => {
-            body.classList.add('impact-shake');
-            header.classList.add('impact-active');
-            
-            setTimeout(() => {
-                body.classList.remove('impact-shake');
-            }, 400);
-        }, 2900); // 2.4s + 0.5s animasyon süresi civarı
-
-        async function fetchSurenData() {
+        // Fetch Data
+        async function load() {
             try {
-                const response = await fetch(DATA_SOURCE);
-                if (!response.ok) throw new Error('Sunucu Hatası');
-                const data = await response.json();
-                renderDictionary(data.words);
-            } catch (err) {
-                grid.innerHTML = `<div class="status-msg" style="color: #ff4444;">Veri akışı kesildi. Bağlantıyı kontrol et kanka.</div>`;
+                const r = await fetch('https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt');
+                const d = await r.json();
+                allWords = d.words;
+                render(allWords);
+            } catch (e) {
+                grid.innerHTML = "Hata oluştu kanka.";
             }
         }
 
-        function renderDictionary(words) {
+        function render(list) {
             grid.innerHTML = '';
-            words.forEach((item, index) => {
-                const card = document.createElement('article');
-                card.className = 'card';
-                card.style.animation = `fadeIn 0.8s ease-out forwards ${3.6 + (index * 0.1)}s`;
-                card.innerHTML = `
-                    <h2 class="word-title">${item.word}</h2>
-                    <p class="word-meaning">${item.meaning}</p>
-                    <div class="example-section">
-                        <span class="example-label">Senaryo</span>
-                        <p class="word-example">"${item.example}"</p>
+            if (list.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.5;">Aradığın şeyi bulamadım kanka.</div>`;
+                return;
+            }
+            list.forEach((w, i) => {
+                const art = document.createElement('article');
+                art.className = 'card';
+                const delay = search.value ? 0 : (3.6 + (i * 0.08));
+                art.style.animation = `fadeInUI 0.6s forwards ${delay}s`;
+                art.innerHTML = `
+                    <div class="card-header">
+                        <h2 class="word-title">${w.word}</h2>
+                        <button class="tts-btn" onclick="speak('${w.word}', '${w.meaning.replace(/'/g, "\\'")}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </button>
+                    </div>
+                    <p class="meaning">${w.meaning}</p>
+                    <div class="example-box">
+                        <span class="example-label">Örnek</span>
+                        <p class="example-text">"${w.example}"</p>
                     </div>
                 `;
-                grid.appendChild(card);
+                grid.appendChild(art);
             });
         }
 
-        // Kısayol: Ctrl + Alt + Shift + f12 + f11
-        let keysActive = {};
+        // TTS (Text to Speech)
+        function speak(word, meaning) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Öncekini sustur
+                const msg = new SpeechSynthesisUtterance(`${word}. Anlamı: ${meaning}`);
+                msg.lang = 'tr-TR';
+                msg.rate = 0.9; // Biraz daha karizmatik ve yavaş
+                msg.pitch = 0.8; // Daha derin bir ses tonu
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // Search Logic
+        search.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = allWords.filter(item => 
+                item.word.toLowerCase().includes(q) || 
+                item.meaning.toLowerCase().includes(q)
+            );
+            render(filtered);
+        });
+
+        // Exit Shortcut
+        let k = {};
         document.addEventListener('keydown', (e) => {
-            keysActive[e.key] = true;
-            if (keysActive['Control'] && keysActive['Alt'] && keysActive['Shift'] && keysActive['F12'] && keysActive['F11']) {
+            k[e.key] = true;
+            if (k['Control'] && k['Alt'] && k['Shift'] && k['F12'] && k['F11']) {
                 window.location.href = "about:blank";
             }
         });
-        document.addEventListener('keyup', (e) => delete keysActive[e.key]);
+        document.addEventListener('keyup', (e) => delete k[e.key]);
 
-        fetchSurenData();
+        load();
     </script>
 </body>
 </html>
