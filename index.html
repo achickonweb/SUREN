@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suren | Dijital Sözlük</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+        :root {
+            /* Varsayılan Modern Dark Tema (Turuncu Aksan) */
+            --bg: #050505;
+            --surface: #111111;
+            --accent: #ff8c00;
+            --accent-glow: rgba(255, 140, 0, 0.15);
+            --text-primary: #fcfcfc;
+            --text-secondary: #94a3b8;
+            --border: #222222;
+            --card-blur: 0px;
+        }
+
+        /* Liquid Glass Tema (Apple Style) */
+        body.liquid-theme {
+            --bg: #0f172a;
+            --surface: rgba(255, 255, 255, 0.03);
+            --accent: #38bdf8; /* Apple esintili gökyüzü mavisi */
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --card-blur: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease, border 0.5s ease, color 0.5s ease, backdrop-filter 0.5s ease;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Arka Plan Işımaları */
+        .glow-sphere {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            top: -300px;
+            right: -200px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .liquid-theme .glow-sphere {
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 60%);
+            bottom: -200px;
+            left: -200px;
+            top: auto;
+            right: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        /* Tema Seçici Butonlar */
+        .theme-switcher {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(var(--card-blur));
+            z-index: 1000;
+        }
+
+        .theme-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: 0.3s;
+        }
+
+        .theme-btn.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .logo {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -4px;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .logo span {
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        #dictionary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Kart Stili */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 2.5rem;
+            backdrop-filter: blur(var(--card-blur));
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .liquid-theme .card:hover {
+            box-shadow: 0 25px 50px -12px rgba(56, 189, 248, 0.1);
+        }
+
+        .word-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+            letter-spacing: -1px;
+        }
+
+        .word-meaning {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .example-section {
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .example-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+            display: block;
+            font-weight: 700;
+        }
+
+        .word-example {
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Durum Mesajları */
+        .status-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem;
+            background: var(--surface);
+            border-radius: 28px;
+            border: 1px dotted var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 3.5rem; }
+            .container { padding: 4rem 1.5rem; }
+            .theme-switcher { top: 1rem; right: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-sphere"></div>
+
+    <!-- Tema Seçici -->
+    <div class="theme-switcher">
+        <button id="modern-btn" class="theme-btn active" onclick="setTheme('modern')">Turuncu</button>
+        <button id="liquid-btn" class="theme-btn" onclick="setTheme('liquid')">Mavi</button>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">SUREN<span>.</span></div>
+            <p>Kelimenin ötesinde, bilginin derinliğinde.</p>
+        </header>
+
+        <main id="dictionary-grid">
+            <div class="status-msg">Suren veritabanı taranıyor...</div>
+        </main>
+    </div>
+
+    <script>
+        const grid = document.getElementById('dictionary-grid');
+        const body = document.body;
+        const modernBtn = document.getElementById('modern-btn');
+        const liquidBtn = document.getElementById('liquid-btn');
+
+        // Gist URL (Senin verdiğin link)
+        const DATA_SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
+
+        // Tema Yönetimi
+        function setTheme(theme) {
+            if (theme === 'liquid') {
+                body.classList.add('liquid-theme');
+                liquidBtn.classList.add('active');
+                modernBtn.classList.remove('active');
+            } else {
+                body.classList.remove('liquid-theme');
+                modernBtn.classList.add('active');
+                liquidBtn.classList.remove('active');
+            }
+        }
+
+        // Veri Çekme
+        async function loadSuren() {
+            try {
+                const response = await fetch(DATA_SOURCE);
+                if (!response.ok) throw new Error('Bağlantı Hatası');
+                
+                const data = await response.json();
+                renderCards(data.words);
+            } catch (err) {
+                grid.innerHTML = `
+                    <div class="status-msg" style="border-color: #ff4444; color: #ff4444;">
+                        <h3>Erişim Engellendi</h3>
+                        <p>Suren veritabanına ulaşılamıyor. Gist URL'ini kontrol etmelisin kanka.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCards(words) {
+            if (!words || words.length === 0) {
+                grid.innerHTML = '<div class="status-msg">Sözlük içeriği şu an boş.</div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+
+            words.forEach(item => {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h2 class="word-title">${item.word}</h2>
+                    <p class="word-meaning">${item.meaning}</p>
+                    <div class="example-section">
+                        <span class="example-label">Kontekst İçinde</span>
+                        <p class="word-example">"${item.example}"</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Çıkış Kısayolu: Ctrl + Alt + Shift + F12 + F11
+        let keysPressed = {};
+        document.addEventListener('keydown', (e) => {
+            keysPressed[e.key] = true;
+            if (keysPressed['Control'] && keysPressed['Alt'] && keysPressed['Shift'] && keysPressed['F12'] && keysPressed['F11']) {
+                window.location.href = "about:blank";
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            delete keysPressed[e.key];
+        });
+
+        loadSuren();
+    </script>
+</body>
+</html>
