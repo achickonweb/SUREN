@@ -97,7 +97,7 @@
             width: 400px;
             opacity: 0;
             transform: translateY(-20px);
-            animation: fadeInUI 0.8s ease-out forwards 3.8s;
+            animation: fadeInUI 0.6s ease-out forwards 1.8s;
         }
 
         .search-input {
@@ -119,7 +119,7 @@
             backdrop-filter: blur(20px);
             opacity: 0;
             transform: translateY(-20px);
-            animation: fadeInUI 0.8s ease-out forwards 4s;
+            animation: fadeInUI 0.6s ease-out forwards 2s;
         }
 
         @keyframes fadeInUI { to { opacity: 1; transform: translateY(0); } }
@@ -139,28 +139,28 @@
         .theme-btn.active { background: var(--accent); color: #000; }
 
         /* --- LOGO SECT --- */
-        header { text-align: center; margin: 6rem 0; }
+        header { text-align: center; margin: 4rem 0; }
         .logo-container { position: relative; display: inline-block; transform-style: preserve-3d; }
         .logo { font-size: 7rem; font-weight: 800; letter-spacing: -6px; display: flex; align-items: baseline; transform-style: preserve-3d; }
         
         @keyframes textIn { 0% { transform: translateX(-40vw) skewX(-20deg); opacity: 0; filter: blur(20px); } 100% { transform: translateX(0) skewX(-20deg); opacity: 1; filter: blur(0px); } }
         @keyframes dotZ { 0% { transform: translateZ(1000px) scale(20); opacity: 0; filter: blur(50px); } 100% { transform: translateZ(0) scale(1); opacity: 1; filter: blur(0px); } }
         
-        .logo-text { display: inline-block; transform: skewX(-20deg); opacity: 0; animation: textIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .logo-dot { display: inline-block; color: var(--accent); opacity: 0; animation: dotZ 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards 2.4s; }
+        .logo-text { display: inline-block; transform: skewX(-20deg); opacity: 0; animation: textIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .logo-dot { display: inline-block; color: var(--accent); opacity: 0; animation: dotZ 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards 1.2s; }
         
         .shockwave { position: absolute; top: 80%; left: 90%; width: 80px; height: 80px; border: 3px solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
-        .impact-active .shockwave { animation: swave 0.8s ease-out forwards; }
+        .impact-active .shockwave { animation: swave 0.6s ease-out forwards; }
         @keyframes swave { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(6); opacity: 0; } }
 
         @keyframes jump { 0%, 100% { transform: translateY(0) skewX(-20deg); } 50% { transform: translateY(-30px) skewX(-20deg); } }
-        .impact-active .logo-text { animation: textIn 1.2s forwards, jump 0.4s 2.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .impact-active .logo-text { animation: textIn 0.8s forwards, jump 0.4s 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        body.shake .container { animation: ishake 0.4s both; }
+        body.shake .container { animation: ishake 0.3s both; }
         @keyframes ishake { 0%, 100% { transform: translate(0,0); } 20%, 60% { transform: translate(-5px, 5px); } 40%, 80% { transform: translate(5px, -5px); } }
 
         /* --- CARDS --- */
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; opacity: 0; animation: fadeInUI 1s forwards 3.6s; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; opacity: 0; animation: fadeInUI 0.8s forwards 1.6s; }
         
         .card {
             background: var(--surface);
@@ -235,12 +235,15 @@
         
         let allWords = [];
 
+        // Yeni Gist Kaynağı
+        const NEW_SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
+
         // Intro Logic
         setTimeout(() => {
             body.classList.add('shake');
             h.classList.add('impact-active');
-            setTimeout(() => body.classList.remove('shake'), 450);
-        }, 2900);
+            setTimeout(() => body.classList.remove('shake'), 350);
+        }, 1400);
 
         function setTheme(t) {
             if (t === 'blue') {
@@ -254,29 +257,28 @@
             }
         }
 
-        // Fetch Data
         async function load() {
             try {
-                const r = await fetch('https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt');
+                const r = await fetch(NEW_SOURCE);
                 const d = await r.json();
                 allWords = d.words;
                 render(allWords);
             } catch (e) {
-                grid.innerHTML = "Hata oluştu kanka.";
+                grid.innerHTML = "Hata oluştu kanka. Linki kontrol et.";
             }
         }
 
         function render(list) {
             grid.innerHTML = '';
             if (list.length === 0) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.5;">Aradığın şeyi bulamadım kanka.</div>`;
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.5;">Sonuç yok kanka.</div>`;
                 return;
             }
             list.forEach((w, i) => {
                 const art = document.createElement('article');
                 art.className = 'card';
-                const delay = search.value ? 0 : (3.6 + (i * 0.08));
-                art.style.animation = `fadeInUI 0.6s forwards ${delay}s`;
+                const delay = search.value ? 0 : (1.6 + (i * 0.05)); 
+                art.style.animation = `fadeInUI 0.5s forwards ${delay}s`;
                 art.innerHTML = `
                     <div class="card-header">
                         <h2 class="word-title">${w.word}</h2>
@@ -294,19 +296,17 @@
             });
         }
 
-        // TTS (Text to Speech)
         function speak(word, meaning) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Öncekini sustur
+                window.speechSynthesis.cancel();
                 const msg = new SpeechSynthesisUtterance(`${word}. Anlamı: ${meaning}`);
                 msg.lang = 'tr-TR';
-                msg.rate = 0.9; // Biraz daha karizmatik ve yavaş
-                msg.pitch = 0.8; // Daha derin bir ses tonu
+                msg.rate = 0.95; 
+                msg.pitch = 0.85; 
                 window.speechSynthesis.speak(msg);
             }
         }
 
-        // Search Logic
         search.addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase();
             const filtered = allWords.filter(item => 
@@ -316,7 +316,7 @@
             render(filtered);
         });
 
-        // Exit Shortcut
+        // Çıkış Kısayolu
         let k = {};
         document.addEventListener('keydown', (e) => {
             k[e.key] = true;
