@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suren | Dijital Sözlük</title>
+    <title>Suren | High-End Digital Dictionary</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
 
         :root {
-            /* Varsayılan Modern Dark Tema (Turuncu Aksan) */
-            --bg: #050505;
-            --surface: #111111;
+            /* Solar Amber Edition */
+            --bg: #030303;
+            --surface: rgba(20, 20, 20, 0.6);
             --accent: #ff8c00;
-            --accent-glow: rgba(255, 140, 0, 0.15);
-            --text-primary: #fcfcfc;
-            --text-secondary: #94a3b8;
-            --border: #222222;
-            --card-blur: 0px;
-        }
-
-        /* Liquid Glass Tema (Apple Style) */
-        body.liquid-theme {
-            --bg: #0f172a;
-            --surface: rgba(255, 255, 255, 0.03);
-            --accent: #38bdf8; /* Apple esintili gökyüzü mavisi */
-            --accent-glow: rgba(56, 189, 248, 0.2);
+            --accent-glow: rgba(255, 140, 0, 0.3);
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-            --card-blur: 20px;
+            --border: rgba(255, 140, 0, 0.2);
+            --card-blur: 15px;
+            --shake-intensity: 5px;
+        }
+
+        body.liquid-theme {
+            /* Liquid Blue Edition */
+            --bg: #010409;
+            --surface: rgba(15, 23, 42, 0.3);
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --text-primary: #f1f5f9;
+            --text-secondary: #64748b;
+            --border: rgba(56, 189, 248, 0.2);
+            --card-blur: 30px;
+            --shake-intensity: 7px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.5s ease, border 0.5s ease, color 0.5s ease, backdrop-filter 0.5s ease;
         }
 
         body {
@@ -44,270 +45,374 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
+            transition: background 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Arka Plan Işımaları */
-        .glow-sphere {
+        /* Ambient Background Light */
+        .ambient-light {
             position: fixed;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            top: -300px;
-            right: -200px;
+            inset: 0;
+            background: radial-gradient(circle at 50% -10%, var(--accent-glow), transparent 70%);
             z-index: -1;
             pointer-events: none;
+            transition: background 1.2s ease;
         }
 
-        .liquid-theme .glow-sphere {
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 60%);
-            bottom: -200px;
-            left: -200px;
-            top: auto;
-            right: auto;
+        /* Intro Overlay */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            z-index: 5000;
+            pointer-events: none;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.5s;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: baseline;
+            perspective: 1500px;
+        }
+
+        .suren-text {
+            font-size: clamp(4rem, 15vw, 9rem);
+            font-weight: 800;
+            letter-spacing: -6px;
+            color: var(--text-primary);
+            opacity: 0;
+            display: inline-block;
+            transform-origin: center;
+            will-change: transform, opacity, filter;
+        }
+
+        @keyframes surenIntro {
+            0% { 
+                transform: translateX(-150vw) skewX(-25deg) scaleX(1.8); 
+                opacity: 0; 
+                filter: blur(30px);
+            }
+            60% { 
+                transform: translateX(5vw) skewX(-25deg) scaleX(1.1); 
+                opacity: 1; 
+                filter: blur(0px);
+            }
+            80% { 
+                transform: translateX(-2vw) skewX(-25deg) scaleX(1); 
+            }
+            100% { 
+                transform: translateX(0) skewX(-20deg) scaleX(1); 
+                opacity: 1; 
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes elasticWobble {
+            0% { transform: skewX(-20deg) scale(1); }
+            20% { transform: skewX(-24deg) scale(1.02) rotate(-1deg); }
+            40% { transform: skewX(-16deg) scale(0.98) rotate(1deg); }
+            60% { transform: skewX(-21deg) scale(1.01) rotate(-0.5deg); }
+            80% { transform: skewX(-19deg) scale(0.99) rotate(0.2deg); }
+            100% { transform: skewX(-20deg) scale(1) rotate(0deg); }
+        }
+
+        .logo-dot {
+            font-size: clamp(4rem, 15vw, 9rem);
+            font-weight: 800;
+            color: var(--accent);
+            opacity: 0;
+            display: inline-block;
+            text-shadow: 0 0 40px var(--accent-glow);
+            will-change: transform, opacity;
+        }
+
+        @keyframes dotGravity {
+            0% { transform: translateY(-120vh); opacity: 0; }
+            60% { transform: translateY(0); opacity: 1; }
+            80% { transform: translateY(-30px); }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes impactShake {
+            0% { transform: translate(0, 0); }
+            15% { transform: translate(calc(var(--shake-intensity) * -1), var(--shake-intensity)); }
+            30% { transform: translate(var(--shake-intensity), calc(var(--shake-intensity) * -1)); }
+            45% { transform: translate(calc(var(--shake-intensity) * -0.5), var(--shake-intensity)); }
+            60% { transform: translate(var(--shake-intensity), calc(var(--shake-intensity) * -0.5)); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .animate-suren { animation: surenIntro 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, elasticWobble 2s cubic-bezier(0.45, 0, 0.55, 1) 1.8s forwards; }
+        .animate-dot { animation: dotGravity 0.9s cubic-bezier(0.47, 0, 0.745, 0.715) forwards; }
+        .shaking { animation: impactShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+        /* UI Content */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 5rem 2rem;
+            padding: 6rem 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.19, 1, 0.22, 1) 4s;
         }
 
-        /* Tema Seçici Butonlar */
-        .theme-switcher {
+        .container.active { opacity: 1; transform: translateY(0); }
+
+        /* Theme Selection */
+        .theme-nav {
             position: fixed;
             top: 2rem;
             right: 2rem;
+            z-index: 6000;
             display: flex;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
             border-radius: 50px;
-            backdrop-filter: blur(var(--card-blur));
-            z-index: 1000;
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            opacity: 0;
+            transition: opacity 1s ease 4.5s;
         }
 
-        .theme-btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
+        .t-btn {
+            padding: 10px 20px;
             border: none;
+            border-radius: 50px;
             cursor: pointer;
             font-family: inherit;
-            font-weight: 600;
-            font-size: 0.85rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             background: transparent;
             color: var(--text-secondary);
-            transition: 0.3s;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .theme-btn.active {
+        .t-btn.active {
             background: var(--accent);
             color: #000;
+            box-shadow: 0 0 25px var(--accent-glow);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 5rem;
-        }
-
-        .logo {
-            font-size: 5rem;
-            font-weight: 800;
-            letter-spacing: -4px;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            display: inline-block;
-        }
-
-        .logo span {
-            color: var(--accent);
-            text-shadow: 0 0 30px var(--accent-glow);
-        }
-
-        header p {
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            font-weight: 300;
-        }
-
-        #dictionary-grid {
+        /* Card Grid */
+        #word-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2.5rem;
+            margin-top: 4rem;
         }
 
-        /* Kart Stili */
-        .card {
+        .word-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 2.5rem;
+            border-radius: 35px;
+            padding: 3rem;
             backdrop-filter: blur(var(--card-blur));
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             position: relative;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            overflow: hidden;
         }
 
-        .card:hover {
+        .word-card:hover {
+            transform: translateY(-15px) scale(1.02);
             border-color: var(--accent);
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6);
         }
 
-        .liquid-theme .card:hover {
-            box-shadow: 0 25px 50px -12px rgba(56, 189, 248, 0.1);
-        }
+        .word-card h2 { font-size: 2.5rem; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .word-card p { font-size: 1.1rem; line-height: 1.8; opacity: 0.85; margin-bottom: 2rem; }
 
-        .word-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 1.2rem;
-            letter-spacing: -1px;
-        }
-
-        .word-meaning {
-            color: var(--text-primary);
-            font-size: 1.1rem;
-            margin-bottom: 2.5rem;
-            line-height: 1.7;
-            font-weight: 400;
-        }
-
-        .example-section {
-            padding-top: 1.5rem;
+        .example-box {
             border-top: 1px solid var(--border);
-        }
-
-        .example-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent);
-            margin-bottom: 0.6rem;
-            display: block;
-            font-weight: 700;
-        }
-
-        .word-example {
-            font-style: italic;
+            padding-top: 1.5rem;
             color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* Durum Mesajları */
-        .status-msg {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 5rem;
-            background: var(--surface);
-            border-radius: 28px;
-            border: 1px dotted var(--border);
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
-            .logo { font-size: 3.5rem; }
             .container { padding: 4rem 1.5rem; }
-            .theme-switcher { top: 1rem; right: 1rem; }
+            .theme-nav { top: 1rem; right: 1rem; }
         }
     </style>
 </head>
-<body>
+<body onload="startIntro()">
 
-    <div class="glow-sphere"></div>
+    <div class="ambient-light"></div>
 
-    <!-- Tema Seçici -->
-    <div class="theme-switcher">
-        <button id="modern-btn" class="theme-btn active" onclick="setTheme('modern')">Turuncu</button>
-        <button id="liquid-btn" class="theme-btn" onclick="setTheme('liquid')">Mavi</button>
+    <div id="intro-overlay">
+        <div class="logo-container">
+            <span id="txt-suren" class="suren-text">SUREN</span>
+            <span id="dot-suren" class="logo-dot">.</span>
+        </div>
     </div>
 
-    <div class="container">
-        <header>
-            <div class="logo">SUREN<span>.</span></div>
-            <p>Kelimenin ötesinde, bilginin derinliğinde.</p>
-        </header>
+    <nav id="theme-nav" class="theme-nav">
+        <button id="btn-amber" class="t-btn active" onclick="changeTheme('amber')">Solar Amber</button>
+        <button id="btn-blue" class="t-btn" onclick="changeTheme('blue')">Liquid Blue</button>
+    </nav>
 
-        <main id="dictionary-grid">
-            <div class="status-msg">Suren veritabanı taranıyor...</div>
-        </main>
+    <div id="main-ui" class="container">
+        <header style="text-align: center; margin-bottom: 4rem;">
+            <p style="text-transform: uppercase; letter-spacing: 4px; color: var(--accent); font-weight: 800; font-size: 0.9rem;">Modern Kavramlar Atlası</p>
+        </header>
+        <div id="word-grid">
+            <!-- JS will populate -->
+        </div>
     </div>
 
     <script>
-        const grid = document.getElementById('dictionary-grid');
-        const body = document.body;
-        const modernBtn = document.getElementById('modern-btn');
-        const liquidBtn = document.getElementById('liquid-btn');
+        const GIST_URL = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/cdd3a7b782991f1880af5c2f77d3d4103bad0cb9/gistfile1.txt';
+        
+        // --- CINEMATIC SOUND ENGINE ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
 
-        // Gist URL (Senin verdiğin link)
-        const DATA_SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
 
-        // Tema Yönetimi
-        function setTheme(theme) {
-            if (theme === 'liquid') {
-                body.classList.add('liquid-theme');
-                liquidBtn.classList.add('active');
-                modernBtn.classList.remove('active');
+        function playSynth(type) {
+            if (!audioCtx || audioCtx.state === 'suspended') return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'whoosh') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(40, now);
+                osc.frequency.exponentialRampToValueAtTime(120, now + 1.2);
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.4, now + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1.8);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(now + 2);
+            }
+
+            if (type === 'impact') {
+                const bass = audioCtx.createOscillator();
+                const bGain = audioCtx.createGain();
+                bass.frequency.setValueAtTime(70, now);
+                bass.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+                bGain.gain.setValueAtTime(0.6, now);
+                bGain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                bass.connect(bGain);
+                bGain.connect(audioCtx.destination);
+                bass.start();
+                bass.stop(now + 0.7);
+
+                const chime = audioCtx.createOscillator();
+                const cGain = audioCtx.createGain();
+                chime.type = 'triangle';
+                chime.frequency.setValueAtTime(2200, now);
+                cGain.gain.setValueAtTime(0.15, now);
+                cGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                chime.connect(cGain);
+                cGain.connect(audioCtx.destination);
+                chime.start();
+                chime.stop(now + 1.5);
+            }
+
+            if (type === 'wobble') {
+                const wobble = audioCtx.createOscillator();
+                const wGain = audioCtx.createGain();
+                wobble.type = 'sine';
+                wobble.frequency.setValueAtTime(150, now);
+                wGain.gain.setValueAtTime(0.03, now);
+                wGain.gain.linearRampToValueAtTime(0, now + 0.8);
+                wobble.connect(wGain);
+                wGain.connect(audioCtx.destination);
+                wobble.start();
+                wobble.stop(now + 0.8);
+            }
+        }
+
+        // --- DIRECT START SEQUENCE ---
+        function startIntro() {
+            // Audio Context'i sessizce hazırlamaya çalış
+            window.addEventListener('mousedown', initAudio, { once: true });
+            window.addEventListener('keydown', initAudio, { once: true });
+
+            // Phase 1: Text Entrance
+            setTimeout(() => {
+                playSynth('whoosh');
+                document.getElementById('txt-suren').classList.add('animate-suren');
+            }, 300);
+
+            // Phase 1.5: Wobble Sound
+            setTimeout(() => playSynth('wobble'), 2100);
+
+            // Phase 2: Dot Gravity
+            setTimeout(() => {
+                document.getElementById('dot-suren').classList.add('animate-dot');
+            }, 2800);
+
+            // Phase 3: Impact & Shake
+            setTimeout(() => {
+                playSynth('impact');
+                document.body.classList.add('shaking');
+                setTimeout(() => document.body.classList.remove('shaking'), 500);
+            }, 3450);
+
+            // Phase 4: UI Reveal
+            setTimeout(() => {
+                document.getElementById('intro-overlay').style.opacity = '0';
+                document.getElementById('main-ui').classList.add('active');
+                document.getElementById('theme-nav').style.opacity = '1';
+                setTimeout(() => document.getElementById('intro-overlay').remove(), 1200);
+            }, 4000);
+        }
+
+        // --- CORE LOGIC ---
+        function changeTheme(t) {
+            if (t === 'blue') {
+                document.body.classList.add('liquid-theme');
+                document.getElementById('btn-blue').classList.add('active');
+                document.getElementById('btn-amber').classList.remove('active');
             } else {
-                body.classList.remove('liquid-theme');
-                modernBtn.classList.add('active');
-                liquidBtn.classList.remove('active');
+                document.body.classList.remove('liquid-theme');
+                document.getElementById('btn-amber').classList.add('active');
+                document.getElementById('btn-blue').classList.remove('active');
             }
         }
 
-        // Veri Çekme
-        async function loadSuren() {
+        async function loadData() {
             try {
-                const response = await fetch(DATA_SOURCE);
-                if (!response.ok) throw new Error('Bağlantı Hatası');
-                
-                const data = await response.json();
-                renderCards(data.words);
-            } catch (err) {
-                grid.innerHTML = `
-                    <div class="status-msg" style="border-color: #ff4444; color: #ff4444;">
-                        <h3>Erişim Engellendi</h3>
-                        <p>Suren veritabanına ulaşılamıyor. Gist URL'ini kontrol etmelisin kanka.</p>
+                const res = await fetch(GIST_URL);
+                if (!res.ok) throw new Error('Fetch Error');
+                const data = await res.json();
+                const grid = document.getElementById('word-grid');
+                grid.innerHTML = data.words.map(w => `
+                    <div class="word-card">
+                        <h2>${w.word}</h2>
+                        <p>${w.meaning}</p>
+                        <div class="example-box">
+                            "${w.example}"
+                        </div>
                     </div>
-                `;
+                `).join('');
+            } catch (e) {
+                document.getElementById('word-grid').innerHTML = '<div style="color:red">Veritabanı bağlantısı kurulamadı.</div>';
             }
         }
 
-        function renderCards(words) {
-            if (!words || words.length === 0) {
-                grid.innerHTML = '<div class="status-msg">Sözlük içeriği şu an boş.</div>';
-                return;
-            }
-
-            grid.innerHTML = '';
-
-            words.forEach(item => {
-                const card = document.createElement('article');
-                card.className = 'card';
-                card.innerHTML = `
-                    <h2 class="word-title">${item.word}</h2>
-                    <p class="word-meaning">${item.meaning}</p>
-                    <div class="example-section">
-                        <span class="example-label">Kontekst İçinde</span>
-                        <p class="word-example">"${item.example}"</p>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // Çıkış Kısayolu: Ctrl + Alt + Shift + F12 + F11
+        // Kısayol: Ctrl + Alt + Shift + F12 + F11
         let keysPressed = {};
-        document.addEventListener('keydown', (e) => {
+        window.addEventListener('keydown', (e) => {
             keysPressed[e.key] = true;
             if (keysPressed['Control'] && keysPressed['Alt'] && keysPressed['Shift'] && keysPressed['F12'] && keysPressed['F11']) {
                 window.location.href = "about:blank";
             }
         });
+        window.addEventListener('keyup', (e) => delete keysPressed[e.key]);
 
-        document.addEventListener('keyup', (e) => {
-            delete keysPressed[e.key];
-        });
-
-        loadSuren();
+        loadData();
     </script>
 </body>
 </html>
