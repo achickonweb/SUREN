@@ -3,330 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suren | Dijital Sözlük & TTS</title>
+    <title>Suren · Dijital Sözlük</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-
         :root {
-            --bg: #050505;
-            --surface: #111111;
-            --accent: #ff8c00;
-            --accent-glow: rgba(255, 140, 0, 0.25);
-            --text-primary: #fcfcfc;
-            --text-secondary: #94a3b8;
-            --border: #222222;
-            --impact-intensity: 6px;
+            --bg:             #080808;
+            --surface:        #101010;
+            --surface-raised: #161616;
+            --accent:         #f59e0b;
+            --accent-dim:     rgba(245, 158, 11, 0.12);
+            --accent-glow:    rgba(245, 158, 11, 0.22);
+            --text-primary:   #f0ece4;
+            --text-secondary: #6b7280;
+            --text-muted:     #374151;
+            --border:         rgba(255,255,255,0.07);
+            --border-hover:   rgba(245, 158, 11, 0.45);
+            --radius-card:    18px;
+            --radius-pill:    100px;
+            --transition:     cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        body.liquid-theme {
-            --bg: #030712;
-            --surface: rgba(255, 255, 255, 0.03);
-            --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.3);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
-            --impact-intensity: 8px;
+        body.liquid {
+            --bg:             #020a14;
+            --surface:        rgba(255,255,255,0.034);
+            --surface-raised: rgba(255,255,255,0.055);
+            --accent:         #38bdf8;
+            --accent-dim:     rgba(56,189,248,0.1);
+            --accent-glow:    rgba(56,189,248,0.25);
+            --border:         rgba(255,255,255,0.07);
+            --border-hover:   rgba(56,189,248,0.45);
+            --text-primary:   #e8f4fd;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: background-color 0.6s ease, border 0.6s ease, color 0.6s ease;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg);
+            background: var(--bg);
             color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            perspective: 1200px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* Background Grid */
+        /* ── NOISE TEXTURE ── */
         body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(var(--border) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -2;
-            opacity: 0.3;
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            opacity: 0.4;
         }
 
-        .glow-sphere {
-            position: fixed;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            top: -300px;
-            right: -200px;
-            z-index: -1;
+        /* ── GRID PATTERN ── */
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+        }
+
+        /* ── AURORA ── */
+        .aurora {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .aurora-orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); pointer-events: none;
+            will-change: transform;
+        }
+        .aurora-orb-1 {
+            width: 700px; height: 500px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 65%);
+            top: -200px; right: -150px;
+            animation: orbDrift1 18s ease-in-out infinite alternate;
+        }
+        .aurora-orb-2 {
+            width: 500px; height: 400px;
+            background: radial-gradient(circle, var(--accent-dim) 0%, transparent 65%);
+            bottom: -100px; left: -100px;
+            animation: orbDrift2 22s ease-in-out infinite alternate;
+        }
+        @keyframes orbDrift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(-60px, 40px) scale(1.1); } }
+        @keyframes orbDrift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(50px, -50px) scale(0.95); } }
+
+        /* ── LAYOUT ── */
+        .page { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+        /* ── STICKY NAV ── */
+        .nav {
+            position: sticky; top: 0; z-index: 900; padding: 1.2rem 0;
+            display: flex; justify-content: center; gap: 0.75rem;
+        }
+        .nav::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, var(--bg) 60%, transparent);
             pointer-events: none;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
+        .search-wrap {
+            position: relative; display: flex; align-items: center;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-pill); padding: 0 1.2rem;
+            width: clamp(240px, 40vw, 440px); backdrop-filter: blur(16px);
+            transition: border-color 0.25s var(--transition), box-shadow 0.25s var(--transition);
+            opacity: 0; transform: translateY(-8px);
+            animation: revealDown 0.5s var(--transition) forwards 0.9s;
         }
-
-        /* --- NAVIGATION & SEARCH --- */
-        .nav-bar {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1rem;
-            position: sticky;
-            top: 1.5rem;
-            z-index: 1000;
+        .search-wrap:focus-within {
+            border-color: var(--border-hover);
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
-
-        .search-container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 0.5rem 1.5rem;
-            display: flex;
-            align-items: center;
-            backdrop-filter: blur(20px);
-            width: 400px;
-            opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeInUI 0.6s ease-out forwards 1.8s;
+        .search-icon {
+            color: var(--text-secondary); flex-shrink: 0; pointer-events: none;
+            transition: color 0.2s;
         }
+        .search-wrap:focus-within .search-icon { color: var(--accent); }
 
         .search-input {
-            background: transparent;
-            border: none;
+            background: transparent; border: none; outline: none;
+            color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 400;
+            padding: 0.75rem 0.6rem; width: 100%;
+            letter-spacing: 0.01em;
+        }
+        .search-input::placeholder { color: var(--text-secondary); }
+
+        .clear-btn {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-secondary); padding: 0.25rem;
+            border-radius: 50%; display: flex; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s, color 0.2s, background 0.2s;
+        }
+        .clear-btn.visible { opacity: 1; pointer-events: auto; }
+        .clear-btn:hover { color: var(--text-primary); background: var(--border); }
+
+        /* ── THEME SWITCHER ── */
+        .theme-toggle {
+            display: flex; align-items: center;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-pill); padding: 4px; backdrop-filter: blur(16px);
+            gap: 2px; flex-shrink: 0;
+            opacity: 0; transform: translateY(-8px);
+            animation: revealDown 0.5s var(--transition) forwards 1.05s;
+        }
+        .t-btn {
+            padding: 0.45rem 1rem; border-radius: var(--radius-pill);
+            border: none; cursor: pointer; font-family: 'Syne', sans-serif;
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; background: transparent;
+            color: var(--text-secondary); transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+        }
+        .t-btn.on {
+            background: var(--accent); color: #000;
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center; padding: 5rem 0 3.5rem;
+        }
+
+        .logo-wrap { display: inline-flex; align-items: baseline; position: relative; }
+
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 10vw, 7.5rem);
+            font-weight: 800; line-height: 1;
+            letter-spacing: -0.04em;
             color: var(--text-primary);
-            width: 100%;
-            padding: 0.5rem;
-            font-family: inherit;
-            outline: none;
         }
 
-        .theme-switcher {
-            display: flex;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 0.3rem;
-            backdrop-filter: blur(20px);
+        .logo-char {
+            display: inline-block;
+            opacity: 0; transform: translateY(20px) rotateX(-40deg);
+            animation: charReveal 0.5s var(--transition) forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes charReveal {
+            to { opacity: 1; transform: translateY(0) rotateX(0deg); }
+        }
+
+        .logo-dot {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 10vw, 7.5rem);
+            font-weight: 800;
+            color: var(--accent);
+            display: inline-block;
             opacity: 0;
-            transform: translateY(-20px);
-            animation: fadeInUI 0.6s ease-out forwards 2s;
+            animation: dotBoom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.55s;
+            position: relative;
+            will-change: transform, opacity;
+        }
+        @keyframes dotBoom {
+            0%   { opacity: 0; transform: scale(0) rotate(-20deg); }
+            60%  { opacity: 1; transform: scale(1.15) rotate(5deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
         }
 
-        @keyframes fadeInUI { to { opacity: 1; transform: translateY(0); } }
-
-        .theme-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 100px;
-            border: none;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.7rem;
-            background: transparent;
-            color: var(--text-secondary);
-            text-transform: uppercase;
+        .shockring {
+            position: absolute; top: 50%; left: 50%;
+            width: 30px; height: 30px;
+            border: 2px solid var(--accent);
+            border-radius: 50%; opacity: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .shockring.fire { animation: ringExpand 0.7s ease-out forwards; }
+        @keyframes ringExpand {
+            0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(14);  opacity: 0; }
         }
 
-        .theme-btn.active { background: var(--accent); color: #000; }
+        .hero-sub {
+            margin-top: 1rem; font-size: 0.9rem; font-weight: 300;
+            color: var(--text-secondary); letter-spacing: 0.12em; text-transform: uppercase;
+            opacity: 0; transform: translateY(8px);
+            animation: revealDown 0.6s var(--transition) forwards 0.9s;
+        }
 
-        /* --- LOGO SECT --- */
-        header { text-align: center; margin: 4rem 0; }
-        .logo-container { position: relative; display: inline-block; transform-style: preserve-3d; }
-        .logo { font-size: 7rem; font-weight: 800; letter-spacing: -6px; display: flex; align-items: baseline; transform-style: preserve-3d; }
-        
-        @keyframes textIn { 0% { transform: translateX(-40vw) skewX(-20deg); opacity: 0; filter: blur(20px); } 100% { transform: translateX(0) skewX(-20deg); opacity: 1; filter: blur(0px); } }
-        @keyframes dotZ { 0% { transform: translateZ(1000px) scale(20); opacity: 0; filter: blur(50px); } 100% { transform: translateZ(0) scale(1); opacity: 1; filter: blur(0px); } }
-        
-        .logo-text { display: inline-block; transform: skewX(-20deg); opacity: 0; animation: textIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .logo-dot { display: inline-block; color: var(--accent); opacity: 0; animation: dotZ 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards 1.2s; }
-        
-        .shockwave { position: absolute; top: 80%; left: 90%; width: 80px; height: 80px; border: 3px solid var(--accent); border-radius: 50%; opacity: 0; pointer-events: none; }
-        .impact-active .shockwave { animation: swave 0.6s ease-out forwards; }
-        @keyframes swave { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(6); opacity: 0; } }
+        /* ── STATS BAR ── */
+        .stats-bar {
+            display: flex; justify-content: center; gap: 2.5rem;
+            margin-bottom: 3rem;
+            opacity: 0; transform: translateY(8px);
+            animation: revealDown 0.5s var(--transition) forwards 1.15s;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--accent); line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.7rem; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.2rem;
+        }
 
-        @keyframes jump { 0%, 100% { transform: translateY(0) skewX(-20deg); } 50% { transform: translateY(-30px) skewX(-20deg); } }
-        .impact-active .logo-text { animation: textIn 0.8s forwards, jump 0.4s 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        body.shake .container { animation: ishake 0.3s both; }
-        @keyframes ishake { 0%, 100% { transform: translate(0,0); } 20%, 60% { transform: translate(-5px, 5px); } 40%, 80% { transform: translate(5px, -5px); } }
+        /* ── GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.25rem;
+            opacity: 0;
+            animation: revealDown 0.5s var(--transition) forwards 1.2s;
+        }
+        @keyframes revealDown { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- CARDS --- */
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; opacity: 0; animation: fadeInUI 0.8s forwards 1.6s; }
-        
+        /* ── SKELETON ── */
+        .skeleton-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-card); padding: 1.6rem;
+            overflow: hidden;
+        }
+        .skel {
+            background: linear-gradient(90deg, var(--border) 25%, var(--surface-raised) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            border-radius: 6px;
+            animation: shimmer 1.6s ease-in-out infinite;
+        }
+        @keyframes shimmer { to { background-position: -200% 0; } }
+        .skel-title  { height: 28px; width: 45%; margin-bottom: 1rem; }
+        .skel-line   { height: 12px; margin-bottom: 0.5rem; }
+        .skel-line-s { height: 12px; width: 70%; margin-bottom: 0; }
+        .skel-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+        .skel-ex { height: 12px; width: 55%; }
+
+        /* ── CARD ── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2rem;
+            border-radius: var(--radius-card);
+            padding: 1.6rem;
+            position: relative; overflow: hidden;
+            cursor: default;
+            transition:
+                transform   0.35s var(--transition),
+                border-color 0.35s var(--transition),
+                box-shadow  0.35s var(--transition);
+            opacity: 0;
+            transform: translateY(14px);
+            animation: cardIn 0.45s var(--transition) forwards;
+            will-change: transform;
+        }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Shimmer sweep on hover */
+        .card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 60% at var(--mx,50%) var(--my,50%), var(--accent-dim) 0%, transparent 65%);
+            opacity: 0; border-radius: inherit;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .card:hover::before { opacity: 1; }
+        .card:hover {
+            transform: translateY(-5px) scale(1.005);
+            border-color: var(--border-hover);
+            box-shadow:
+                0 16px 40px -12px rgba(0,0,0,0.5),
+                0 0 0 1px var(--accent-dim),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* Top accent line */
+        .card-accent-line {
+            position: absolute; top: 0; left: 1.5rem; right: 1.5rem; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0; transition: opacity 0.35s;
+        }
+        .card:hover .card-accent-line { opacity: 0.6; }
+
+        .card-head {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 0.9rem;
+        }
+
+        .word {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.75rem; font-weight: 800;
+            color: var(--accent); letter-spacing: -0.03em;
+            line-height: 1; cursor: default;
+        }
+
+        .card-badge {
+            background: var(--accent-dim); color: var(--accent);
+            font-family: 'Syne', sans-serif; font-size: 0.58rem;
+            font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.3rem 0.6rem; border-radius: var(--radius-pill);
+            border: 1px solid rgba(245,158,11,0.2); flex-shrink: 0;
+            align-self: flex-start; margin-top: 0.2rem;
+            opacity: 0; transform: scale(0.8);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .card:hover .card-badge { opacity: 1; transform: scale(1); }
+
+        .meaning {
+            font-size: 0.95rem; line-height: 1.7; font-weight: 300;
+            color: var(--text-primary); opacity: 0.82;
+            margin-bottom: 1.2rem;
+        }
+
+        .example-section {
+            border-top: 1px solid var(--border); padding-top: 1rem;
             position: relative;
-            overflow: hidden;
-            transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        .card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-        .word-title { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-        
-        .tts-btn {
-            background: var(--border);
-            border: none;
-            color: var(--text-primary);
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.3s;
+        .example-label {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.6rem; text-transform: uppercase;
+            letter-spacing: 0.12em; font-weight: 700; font-family: 'Syne', sans-serif;
+            color: var(--accent); margin-bottom: 0.5rem;
         }
-        .tts-btn:hover { background: var(--accent); color: #000; transform: scale(1.1); }
+        .example-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--accent-dim), transparent);
+        }
 
-        .meaning { font-size: 1rem; line-height: 1.6; color: var(--text-primary); opacity: 0.85; margin-bottom: 1.5rem; }
-        
-        .example-box { border-top: 1px solid var(--border); padding-top: 1rem; }
-        .example-label { font-size: 0.65rem; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 1px; margin-bottom: 0.3rem; display: block; }
-        .example-text { font-style: italic; color: var(--text-secondary); font-size: 0.95rem; }
+        .example-text {
+            font-style: italic; font-size: 0.88rem; font-weight: 300;
+            color: var(--text-secondary); line-height: 1.6;
+        }
+        .example-text::before { content: '"'; color: var(--accent); font-style: normal; }
+        .example-text::after  { content: '"'; color: var(--accent); font-style: normal; }
 
-        @media (max-width: 600px) { .search-container { width: 200px; } .logo { font-size: 4rem; } }
+        /* ── EMPTY STATE ── */
+        .empty {
+            grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;
+            opacity: 0; animation: revealDown 0.5s var(--transition) forwards;
+        }
+        .empty-icon {
+            width: 64px; height: 64px; margin: 0 auto 1.5rem;
+            background: var(--surface-raised); border: 1px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted);
+        }
+        .empty-title {
+            font-family: 'Syne', sans-serif; font-size: 1.2rem;
+            font-weight: 700; color: var(--text-primary); opacity: 0.5;
+            margin-bottom: 0.4rem;
+        }
+        .empty-sub {
+            font-size: 0.85rem; color: var(--text-secondary); font-weight: 300;
+        }
+
+        /* ── SEARCH HIGHLIGHT ── */
+        mark {
+            background: var(--accent-dim); color: var(--accent);
+            border-radius: 3px; padding: 0 2px;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            margin-top: 5rem; text-align: center; padding-bottom: 2rem;
+            opacity: 0; animation: revealDown 0.5s var(--transition) forwards 1.4s;
+        }
+        .footer-text {
+            font-size: 0.75rem; color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+        .footer-text span { color: var(--accent); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .page { padding: 0 1rem 3rem; }
+            .hero { padding: 3.5rem 0 2.5rem; }
+            .stats-bar { gap: 1.5rem; }
+            .grid { grid-template-columns: 1fr; }
+            .search-wrap { width: 200px; }
+        }
+
+        @media (max-width: 400px) {
+            .t-btn { padding: 0.4rem 0.65rem; font-size: 0.6rem; }
+        }
     </style>
 </head>
 <body id="body">
 
-    <div class="glow-sphere"></div>
-
-    <div class="nav-bar">
-        <div class="search-container">
-            <input type="text" id="search" class="search-input" placeholder="Kelime veya anlam ara...">
-        </div>
-        <div class="theme-switcher">
-            <button id="abtn" class="theme-btn active" onclick="setTheme('amber')">Amber</button>
-            <button id="bbtn" class="theme-btn" onclick="setTheme('blue')">Liquid</button>
-        </div>
+    <div class="aurora">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
     </div>
 
-    <div class="container">
-        <header id="h">
-            <div class="logo-container">
-                <div class="logo">
-                    <span class="logo-text">SUREN</span><span class="logo-dot">.</span>
-                </div>
-                <div class="shockwave"></div>
+    <div class="page">
+        <!-- NAV -->
+        <nav class="nav" role="navigation" aria-label="Ana gezinme">
+            <div class="search-wrap" role="search">
+                <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input id="search" class="search-input" type="search" placeholder="Kelime ara…" autocomplete="off" spellcheck="false" aria-label="Kelime ara">
+                <button id="clearBtn" class="clear-btn" aria-label="Aramayı temizle">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
             </div>
+            <div class="theme-toggle" role="group" aria-label="Tema seçimi">
+                <button id="btnA" class="t-btn on" onclick="setTheme('amber')" aria-pressed="true">Amber</button>
+                <button id="btnB" class="t-btn"    onclick="setTheme('liquid')" aria-pressed="false">Liquid</button>
+            </div>
+        </nav>
+
+        <!-- HERO -->
+        <header class="hero" aria-label="Başlık">
+            <div class="logo-wrap" id="logoWrap">
+                <div class="logo-text" id="logoChars" aria-label="Suren"></div>
+                <span class="logo-dot" id="logoDot">
+                    .
+                    <div class="shockring" id="shockring"></div>
+                </span>
+            </div>
+            <p class="hero-sub" id="heroSub">Dijital Sözcük Sözlüğü</p>
         </header>
 
-        <main id="grid">
-            <div style="text-align:center; grid-column: 1/-1; opacity:0.5;">Veriler hazırlanıyor...</div>
-        </main>
+        <!-- STATS -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat">
+                <div class="stat-num" id="statCount">—</div>
+                <div class="stat-label">Kelime</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="statFiltered">—</div>
+                <div class="stat-label">Gösterilen</div>
+            </div>
+        </div>
+
+        <!-- GRID -->
+        <main id="grid" class="grid" aria-live="polite" aria-atomic="false"></main>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p class="footer-text">Suren <span>·</span> Dijital Sözlük</p>
+        </footer>
     </div>
 
     <script>
-        const grid = document.getElementById('grid');
-        const body = document.getElementById('body');
-        const h = document.getElementById('h');
-        const search = document.getElementById('search');
-        
-        let allWords = [];
+        'use strict';
 
-        // Yeni Gist Kaynağı
-        const NEW_SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
+        /* ── CONFIG ── */
+        const SOURCE = 'https://gist.githubusercontent.com/achickonweb/83412cf9196a8cc0c4d57cd2e08d5e21/raw/9dcaa9bc40a11d58737d219392a5d061a48813fb/gistfile1.txt';
 
-        // Intro Logic
+        /* ── STATE ── */
+        let allWords    = [];
+        let currentTheme = 'amber';
+        let searchTimer  = null;
+        let currentQuery = '';
+
+        /* ── DOM REFS ── */
+        const body       = document.getElementById('body');
+        const grid       = document.getElementById('grid');
+        const search     = document.getElementById('search');
+        const clearBtn   = document.getElementById('clearBtn');
+        const logoChars  = document.getElementById('logoChars');
+        const logoDot    = document.getElementById('logoDot');
+        const shockring  = document.getElementById('shockring');
+        const statCount  = document.getElementById('statCount');
+        const statFilt   = document.getElementById('statFiltered');
+
+        /* ── LOGO BUILD ── */
+        (function buildLogo() {
+            const letters = 'SUREN'.split('');
+            const frag = document.createDocumentFragment();
+            letters.forEach((ch, i) => {
+                const span = document.createElement('span');
+                span.className = 'logo-char';
+                span.textContent = ch;
+                span.style.animationDelay = `${0.1 + i * 0.09}s`;
+                frag.appendChild(span);
+            });
+            logoChars.appendChild(frag);
+        })();
+
+        /* ── INTRO SEQUENCE ── */
         setTimeout(() => {
-            body.classList.add('shake');
-            h.classList.add('impact-active');
-            setTimeout(() => body.classList.remove('shake'), 350);
-        }, 1400);
+            shockring.classList.add('fire');
+        }, 580);
 
+        /* ── THEME ── */
         function setTheme(t) {
-            if (t === 'blue') {
-                body.classList.add('liquid-theme');
-                document.getElementById('bbtn').classList.add('active');
-                document.getElementById('abtn').classList.remove('active');
-            } else {
-                body.classList.remove('liquid-theme');
-                document.getElementById('abtn').classList.add('active');
-                document.getElementById('bbtn').classList.remove('active');
-            }
+            currentTheme = t;
+            body.classList.toggle('liquid', t === 'liquid');
+            document.getElementById('btnA').classList.toggle('on', t === 'amber');
+            document.getElementById('btnB').classList.toggle('on', t === 'liquid');
+            document.getElementById('btnA').setAttribute('aria-pressed', t === 'amber');
+            document.getElementById('btnB').setAttribute('aria-pressed', t === 'liquid');
         }
 
-        async function load() {
-            try {
-                const r = await fetch(NEW_SOURCE);
-                const d = await r.json();
-                allWords = d.words;
-                render(allWords);
-            } catch (e) {
-                grid.innerHTML = "Hata oluştu kanka. Linki kontrol et.";
+        /* ── MOUSE TRACK for card glow ── */
+        document.addEventListener('mousemove', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width  * 100).toFixed(1);
+            const y = ((e.clientY - rect.top)  / rect.height * 100).toFixed(1);
+            card.style.setProperty('--mx', `${x}%`);
+            card.style.setProperty('--my', `${y}%`);
+        });
+
+        /* ── SKELETON ── */
+        function renderSkeleton(n = 6) {
+            let html = '';
+            for (let i = 0; i < n; i++) {
+                html += `<div class="skeleton-card">
+                    <div class="skel skel-title"></div>
+                    <div class="skel skel-line" style="width:92%"></div>
+                    <div class="skel skel-line" style="width:80%"></div>
+                    <div class="skel skel-line-s"></div>
+                    <div class="skel-divider"></div>
+                    <div class="skel skel-ex"></div>
+                </div>`;
             }
+            grid.innerHTML = html;
         }
 
-        function render(list) {
-            grid.innerHTML = '';
+        /* ── HIGHLIGHT UTIL ── */
+        function hl(str, q) {
+            if (!q) return str;
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return str.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+        }
+
+        /* ── RENDER ── */
+        function render(list, q = '') {
+            statFilt.textContent = list.length;
+
             if (list.length === 0) {
-                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; opacity:0.5;">Sonuç yok kanka.</div>`;
+                grid.innerHTML = `<div class="empty">
+                    <div class="empty-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                            <path d="M8 11h6M11 8v6" opacity="0.4"/>
+                        </svg>
+                    </div>
+                    <p class="empty-title">Sonuç bulunamadı</p>
+                    <p class="empty-sub">"${q}" için eşleşen kelime yok.</p>
+                </div>`;
                 return;
             }
+
+            const frag = document.createDocumentFragment();
             list.forEach((w, i) => {
-                const art = document.createElement('article');
-                art.className = 'card';
-                const delay = search.value ? 0 : (1.6 + (i * 0.05)); 
-                art.style.animation = `fadeInUI 0.5s forwards ${delay}s`;
-                art.innerHTML = `
-                    <div class="card-header">
-                        <h2 class="word-title">${w.word}</h2>
-                        <button class="tts-btn" onclick="speak('${w.word}', '${w.meaning.replace(/'/g, "\\'")}')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                        </button>
+                const article = document.createElement('article');
+                article.className = 'card';
+                article.style.animationDelay = `${q ? 0 : i * 0.04}s`;
+                article.innerHTML = `
+                    <div class="card-accent-line"></div>
+                    <div class="card-head">
+                        <h2 class="word">${hl(w.word, q)}</h2>
+                        <span class="card-badge">isim</span>
                     </div>
-                    <p class="meaning">${w.meaning}</p>
-                    <div class="example-box">
+                    <p class="meaning">${hl(w.meaning, q)}</p>
+                    <div class="example-section">
                         <span class="example-label">Örnek</span>
-                        <p class="example-text">"${w.example}"</p>
-                    </div>
-                `;
-                grid.appendChild(art);
+                        <p class="example-text">${w.example}</p>
+                    </div>`;
+                frag.appendChild(article);
             });
+
+            grid.innerHTML = '';
+            grid.appendChild(frag);
         }
 
-        function speak(word, meaning) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const msg = new SpeechSynthesisUtterance(`${word}. Anlamı: ${meaning}`);
-                msg.lang = 'tr-TR';
-                msg.rate = 0.95; 
-                msg.pitch = 0.85; 
-                window.speechSynthesis.speak(msg);
-            }
+        /* ── SEARCH ── */
+        function doSearch(q) {
+            currentQuery = q.trim().toLowerCase();
+            clearBtn.classList.toggle('visible', q.length > 0);
+
+            const filtered = currentQuery
+                ? allWords.filter(w =>
+                    w.word.toLowerCase().includes(currentQuery) ||
+                    w.meaning.toLowerCase().includes(currentQuery))
+                : allWords;
+
+            render(filtered, currentQuery);
         }
 
         search.addEventListener('input', (e) => {
-            const q = e.target.value.toLowerCase();
-            const filtered = allWords.filter(item => 
-                item.word.toLowerCase().includes(q) || 
-                item.meaning.toLowerCase().includes(q)
-            );
-            render(filtered);
+            clearTimeout(searchTimer);
+            const q = e.target.value;
+            if (q.length === 0) { doSearch(''); return; }
+            searchTimer = setTimeout(() => doSearch(q), 160);
         });
 
-        // Çıkış Kısayolu
-        let k = {};
-        document.addEventListener('keydown', (e) => {
-            k[e.key] = true;
-            if (k['Control'] && k['Alt'] && k['Shift'] && k['F12'] && k['F11']) {
-                window.location.href = "about:blank";
-            }
+        clearBtn.addEventListener('click', () => {
+            search.value = '';
+            doSearch('');
+            search.focus();
         });
-        document.addEventListener('keyup', (e) => delete k[e.key]);
+
+        /* ── LOAD ── */
+        async function load() {
+            renderSkeleton(6);
+            try {
+                const res  = await fetch(SOURCE);
+                const data = await res.json();
+                allWords = data.words || [];
+                statCount.textContent = allWords.length;
+                statFilt.textContent  = allWords.length;
+                render(allWords);
+            } catch {
+                grid.innerHTML = `<div class="empty">
+                    <div class="empty-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                        </svg>
+                    </div>
+                    <p class="empty-title">Bağlantı hatası</p>
+                    <p class="empty-sub">Veriler yüklenemedi. Lütfen sayfayı yenileyin.</p>
+                </div>`;
+            }
+        }
 
         load();
+
+        /* ── KEYBOARD SHORTCUT ── */
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                search.focus();
+                search.select();
+            }
+            if (e.key === 'Escape' && document.activeElement === search) {
+                search.blur();
+            }
+        });
     </script>
 </body>
 </html>
